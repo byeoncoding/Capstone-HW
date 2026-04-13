@@ -12,22 +12,22 @@ logger:
   logs:
     seeed_mr60bha2: NONE  # [V] 로그 차단
     uart.idf: INFO       # 시스템 로그 축소
-# 웹 서버 활성화 (친구가 사용한 방식, 브라우저/curl 접속용)
+# 웹 서버 활성화 
 web_server:
   port: 80
 
-# Home Assistant API 및 보안 설정
+# API 키 (실제 키는 공유하지 않음)
 api:
   encryption:
-    key: "omeckzUWHKyEFdbxso06aobaqWehfqqfbUPX+Y/UJmY="
+    key: "YOUR_ENCRYPTION_KEY"
 
 ota:
   - platform: esphome
 
-# 와이파이 설정
+# 와이파이 설정 (보안을 위해 실제 정보는 삭제함)
 wifi:
-  ssid: "iptime"
-  password: "b5320827"
+  ssid: "YOUR_WIFI_SSID"
+  password: "YOUR_WIFI_PASSWORD"
 
   # 연결 실패 시 비상용으로 생성되는 핫스팟
   ap:
