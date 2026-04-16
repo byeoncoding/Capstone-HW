@@ -26,13 +26,13 @@ ota:
 
 # 와이파이 설정 
 wifi:
-  ssid: "306"
-  password: "abc01024845@"
+  ssid: "CNSE"
+  password: "wjsansrk"
 
   # 연결 실패 시 비상용으로 생성되는 핫스팟
   ap:
-    ssid: "Capstone Fallback Hotspot"
-    password: "gnagO0kGa8XN"
+    ssid: "CNSE"
+    password: "wjsansrk"
 
 captive_portal:
 

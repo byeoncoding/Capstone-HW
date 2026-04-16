@@ -4,8 +4,6 @@ import sseclient
 import time
 from datetime import datetime
 
-# [수정됨] 슬래시 오류 수정 및 mDNS(capstone.local) 적용
-# 내일 IP 주소를 몰라도 자동으로 센서를 찾아냅니다!
 SENSOR_URL = "http://capstone.local/events" 
 BACKEND_URL = "https://api.chewbit.dev/api/vitals"
 
@@ -17,8 +15,21 @@ print(f"{'='*60}\n")
 
 current_vitals = {"heartRate": 0, "breathRate": 0, "isPresent": False}
 
+# 🔥 핵심: 센서가 켜질 때까지 절대 죽지 않고 5초마다 재시도하는 함수
+def wait_for_sensor():
+    while True:
+        try:
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] 📡 센서(capstone.local) 연결 시도 중...")
+            res = requests.get(SENSOR_URL, stream=True, timeout=5)
+            if res.status_code == 200:
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ 센서 연결 성공! 데이터 수신을 시작합니다.")
+                return res
+        except requests.exceptions.RequestException:
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] ⏳ 센서 부팅 대기 중... (5초 후 재시도)")
+            time.sleep(5)
+
 try:
-    response = requests.get(SENSOR_URL, stream=True)
+    response = wait_for_sensor()
     client = sseclient.SSEClient(response)
     
     for event in client.events():
@@ -42,14 +53,13 @@ try:
                     "isPresent": current_vitals["isPresent"]
                 }
                 
-                start_time = time.time() # 응답 속도 체크용
+                start_time = time.time()
                 try:
                     res = requests.post(BACKEND_URL, json=payload, timeout=5)
-                    elapsed = (time.time() - start_time) * 1000 # ms 단위
+                    elapsed = (time.time() - start_time) * 1000
                     timestamp = datetime.now().strftime('%H:%M:%S')
                     
                     if res.status_code in [200, 201]:
-                       
                         print(f"[{timestamp}] PUSH >> Serial: {payload['serialNum']} | HR: {payload['heartRate']} bpm | BR: {payload['breathRate']} rpm | Presence: {payload['isPresent']}")
                         print(f"            STATUS: {res.status_code} OK | Latency: {elapsed:.2f}ms | Connection: Persistent")
                         print(f"{'-'*60}")
@@ -57,7 +67,7 @@ try:
                         print(f"[{timestamp}] ⚠️ UPLINK_FAILURE | Status: {res.status_code} | Msg: {res.text}")
                         
                 except Exception as e:
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ❌ NETWORK_EXCEPTION: {e}")
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] ❌ NETWORK_EXCEPTION (Backend): {e}")
 
 except KeyboardInterrupt:
     print(f"\n{'='*60}")
