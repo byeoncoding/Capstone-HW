@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 
 SENSOR_URL = "http://capstone.local/events" 
-BACKEND_URL = "https://api.chewbit.dev/api/vitals"
+BACKEND_URL = ""
 
 print(f"\n{'='*60}")
 print(f" [SYSTEM] IoT Data Bridge Pipeline Initialized")
