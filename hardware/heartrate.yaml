@@ -19,7 +19,7 @@ web_server:
 # API 키 (실제 키는 공유하지 않음)
 api:
   encryption:
-    key: "omeckzUWHKyEFdbxso06aobaqWehfqqfbUPX+Y/UJmY="
+    key: ""
 
 ota:
   - platform: esphome
