@@ -19,15 +19,15 @@ web_server:
 # API 키 (실제 키는 공유하지 않음)
 api:
   encryption:
-    key: ""
+    key: "omeckzUWHKyEFdbxso06aobaqWehfqqfbUPX+Y/UJmY="
 
 ota:
   - platform: esphome
 
 # 와이파이 설정 
 wifi:
-  ssid: ""
-  password: ""
+  ssid: "306"
+  password: "abc01024845@"
 
   # 연결 실패 시 비상용으로 생성되는 핫스팟
   ap:

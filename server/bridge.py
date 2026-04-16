@@ -4,8 +4,9 @@ import sseclient
 import time
 from datetime import datetime
 
-# 1. 보드 로그에 뜬 IP 주소로 수정
-SENSOR_URL = "http:/xxx.xxx.xxx.xxx/events" 
+# [수정됨] 슬래시 오류 수정 및 mDNS(capstone.local) 적용
+# 내일 IP 주소를 몰라도 자동으로 센서를 찾아냅니다!
+SENSOR_URL = "http://capstone.local/events" 
 BACKEND_URL = "https://api.chewbit.dev/api/vitals"
 
 print(f"\n{'='*60}")
@@ -48,7 +49,7 @@ try:
                     timestamp = datetime.now().strftime('%H:%M:%S')
                     
                     if res.status_code in [200, 201]:
-                        # 전문가 느낌의 로그 출력
+                       
                         print(f"[{timestamp}] PUSH >> Serial: {payload['serialNum']} | HR: {payload['heartRate']} bpm | BR: {payload['breathRate']} rpm | Presence: {payload['isPresent']}")
                         print(f"            STATUS: {res.status_code} OK | Latency: {elapsed:.2f}ms | Connection: Persistent")
                         print(f"{'-'*60}")
