@@ -1,0 +1,5 @@
+pip install requests sseclient-py
+
+
+py -3.11 bridge.py
+(파이썬 버전이 여러개라 파이썬 버전을 지정해줘야할때 = py -x.xx bridge.py)

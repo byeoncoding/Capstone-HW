@@ -1,0 +1,57 @@
+esphome:
+  name: capstone
+
+esp32:
+  board: seeed_xiao_esp32c6
+  framework:
+    type: esp-idf
+
+# 로그 출력 활성화
+logger:
+  level: DEBUG
+  logs:
+    seeed_mr60bha2: NONE  # [V] 로그 차단
+    uart.idf: INFO       # 시스템 로그 축소
+# 웹 서버 활성화 
+web_server:
+  port: 80
+
+# API 키 (실제 키는 공유하지 않음)
+api:
+  encryption:
+    key: ""
+ota:
+  - platform: esphome
+
+# 와이파이 설정 
+wifi:
+  ssid: ""
+  password: ""
+
+  # 연결 실패 시 비상용으로 생성되는 핫스팟
+  ap:
+    ssid: ""
+    password: ""
+
+captive_portal:
+
+uart:
+  id: uart_bus
+  tx_pin: GPIO16
+  rx_pin: GPIO17
+  baud_rate: 115200
+
+seeed_mr60bha2:
+  uart_id: uart_bus
+
+binary_sensor:
+  - platform: seeed_mr60bha2
+    has_target:
+      name: "Presence Detected"
+
+sensor:
+  - platform: seeed_mr60bha2
+    heart_rate:
+      name: "Current Heart Rate"
+    breath_rate:
+      name: "Current Breath Rate"

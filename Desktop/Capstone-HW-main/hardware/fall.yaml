@@ -1,0 +1,56 @@
+esphome:
+  name: ikong-fall
+
+esp32:
+  board: seeed_xiao_esp32c6
+  framework:
+    type: esp-idf
+
+logger:
+  level: DEBUG
+
+web_server:
+  port: 80
+
+wifi:
+  ssid: ""
+  password: ""
+  ap:
+    ssid: "iptime"
+
+captive_portal:
+
+uart:
+  id: uart_bus
+  tx_pin: GPIO16
+  rx_pin: GPIO17
+  baud_rate: 115200
+
+seeed_mr60fda2:
+  id: mr60fda2_sensor
+
+binary_sensor:
+  - platform: seeed_mr60fda2
+    people_exist:
+      name: "Presence Detected"
+    fall_detected:
+      name: "Fall Detected"
+
+select:
+  - platform: seeed_mr60fda2
+    install_height:
+      name: "Install Height"
+    height_threshold:
+      name: "Height Threshold"
+    sensitivity:
+      name: "Sensitivity"
+
+button:
+  - platform: seeed_mr60fda2
+    get_radar_parameters:
+      name: "Get Radar Parameters"
+    factory_reset:
+      name: "Factory Reset"
+  # 재부팅 버튼은 센서 플랫폼에서 분리하여 시스템 기본(restart)으로 설정합니다.
+  - platform: restart
+    name: "Reboot Device"
