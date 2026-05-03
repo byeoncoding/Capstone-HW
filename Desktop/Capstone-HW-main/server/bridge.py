@@ -15,17 +15,17 @@ print(f"{'='*60}\n")
 
 current_vitals = {"heartRate": 0, "breathRate": 0, "isPresent": False}
 
-# 🔥 핵심: 센서가 켜질 때까지 절대 죽지 않고 5초마다 재시도하는 함수
+# 센서가 켜질 때까지 5초마다 재시도하는 함수
 def wait_for_sensor():
     while True:
         try:
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] 📡 센서(capstone.local) 연결 시도 중...")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] 센서(capstone.local) 연결 시도 중...")
             res = requests.get(SENSOR_URL, stream=True, timeout=5)
             if res.status_code == 200:
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] ✅ 센서 연결 성공! 데이터 수신을 시작합니다.")
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] 센서 연결 성공! 데이터 수신을 시작합니다.")
                 return res
         except requests.exceptions.RequestException:
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] ⏳ 센서 부팅 대기 중... (5초 후 재시도)")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] 센서 부팅 대기 중... (5초 후 재시도)")
             time.sleep(5)
 
 try:
@@ -46,7 +46,7 @@ try:
 
             if "heart_rate" in data_id:
                 payload = {
-                    "serialNum": "RPI-TEST-01",
+                    "serialNum": "HR-01",
                     "heartRate": current_vitals["heartRate"],
                     "breathRate": current_vitals["breathRate"],
                     "isFallDetected": False,

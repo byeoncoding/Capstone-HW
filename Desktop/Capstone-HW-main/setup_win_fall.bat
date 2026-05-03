@@ -2,19 +2,19 @@
 cd /d "%~dp0"
 
 setlocal enabledelayedexpansion
-title iKong Fall Sensor Auto-Config
+title HeartView Fall Sensor Auto-Config
 
 echo ==========================================
-echo iKong Fall Sensor Setup (Windows)
+echo HeartView Fall Sensor Setup (Windows)
 echo ==========================================
 
-if not exist config_fall.env (
+if not exist config.env (
     echo [ERROR] config_fall.env file not found!
     pause
     exit
 )
 
-for /f "tokens=1* delims==" %%a in (config_fall.env) do (
+for /f "tokens=1* delims==" %%a in (config.env) do (
     if "%%a"=="WIFI_SSID" set WIFI_SSID=%%b
     if "%%a"=="WIFI_PASSWORD" set WIFI_PASSWORD=%%b
 )

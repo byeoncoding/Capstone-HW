@@ -2,10 +2,10 @@
 cd /d "%~dp0"
 
 setlocal enabledelayedexpansion
-title iKong Heartrate Sensor Auto-Config
+title HeartView Heartrate Sensor Auto-Config
 
 echo ==========================================
-echo iKong Heartrate Sensor Setup (Windows)
+echo HeartView Heartrate Sensor Setup (Windows)
 echo ==========================================
 
 if not exist config.env (

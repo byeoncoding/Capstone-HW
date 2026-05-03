@@ -7,7 +7,7 @@ from datetime import datetime
 
 # 1. config_fall.env 파일에서 설정 자동 읽기
 env_vars = {}
-env_file = "config_fall.env"
+env_file = "config.env"
 if os.path.exists(env_file):
     with open(env_file, "r", encoding="utf-8") as f:
         for line in f:
@@ -19,10 +19,10 @@ if os.path.exists(env_file):
                 except ValueError:
                     continue
 
-SENSOR_SERIAL = )
-SENSOR_MDNS = ""
-BACKEND_URL = ""
-SENSOR_URL = f""
+SENSOR_SERIAL = env_vars.get("SENSOR_SERIAL", "IKONG-FALL-001")
+SENSOR_MDNS = "ikong-fall.local"
+BACKEND_URL = "https://api.chewbit.dev/api/vitals"
+SENSOR_URL = f"http://{SENSOR_MDNS}/events"
 
 print(f"\n{'='*60}")
 print(f" [SYSTEM] Fall Detection Bridge Initialized")
@@ -76,7 +76,7 @@ while True:
                 # 백엔드 전송
                 if is_updated:
                     payload = {
-                        "serialNum": SENSOR_SERIAL,
+                        "serialNum": "FALL-01",
                         "heartRate": 0,
                         "breathRate": 0,
                         "isFallDetected": current_state["isFallDetected"],
