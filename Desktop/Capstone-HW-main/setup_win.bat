@@ -15,14 +15,18 @@ if not exist config.env (
 )
 
 for /f "tokens=1* delims==" %%a in (config.env) do (
-    if "%%a"=="WIFI_SSID" set WIFI_SSID=%%b
-    if "%%a"=="WIFI_PASSWORD" set WIFI_PASSWORD=%%b
+    set key=%%a
+    set val=%%b
+    if "!key!"=="WIFI_SSID" set WIFI_SSID=!val!
+    if "!key!"=="WIFI_PASSWORD" set WIFI_PASSWORD=!val!
+    if "!key!"=="API_KEY" set API_KEY=!val!
 )
 
-set WIFI_SSID=%WIFI_SSID:"=%
-set WIFI_PASSWORD=%WIFI_PASSWORD:"=%
+if defined WIFI_SSID set WIFI_SSID=!WIFI_SSID:"=!
+if defined WIFI_PASSWORD set WIFI_PASSWORD=!WIFI_PASSWORD:"=!
+if defined API_KEY set API_KEY=!API_KEY:"=!
 
-echo [INFO] WIFI_SSID: %WIFI_SSID%
+echo [INFO] WIFI_SSID: !WIFI_SSID!
 
 python --version >nul 2>&1
 if %errorlevel% equ 0 (
@@ -32,27 +36,12 @@ if %errorlevel% equ 0 (
 )
 
 echo [STEP 0] Installing requirements...
-%PY_CMD% -m pip install esphome aiohttp requests sseclient-py -q
+!PY_CMD! -m pip install esphome aiohttp requests sseclient-py -q
 
-echo [STEP 1] Updating hardware/heartrate.yaml...
-echo import os, re > update_hr_yaml.py
-echo s = os.environ.get('WIFI_SSID', '') >> update_hr_yaml.py
-echo p = os.environ.get('WIFI_PASSWORD', '') >> update_hr_yaml.py
-echo f = 'hardware/heartrate.yaml' >> update_hr_yaml.py
-echo c = open(f, 'r', encoding='utf-8').read() >> update_hr_yaml.py
-echo q = chr(34) >> update_hr_yaml.py
-echo c = re.sub(r'ssid: ' + q + '.*' + q, f'ssid: {q}{s}{q}', c) >> update_hr_yaml.py
-echo c = re.sub(r'password: ' + q + '.*' + q, f'password: {q}{p}{q}', c) >> update_hr_yaml.py
-echo open(f, 'w', encoding='utf-8').write(c) >> update_hr_yaml.py
+echo [STEP 1] Flashing ESPHome...
+!PY_CMD! -m esphome -s WIFI_SSID "!WIFI_SSID!" -s WIFI_PASSWORD "!WIFI_PASSWORD!" -s API_KEY "!API_KEY!" run hardware/heartrate.yaml
 
-%PY_CMD% update_hr_yaml.py
-del update_hr_yaml.py
-echo [OK] YAML update complete!
-
-echo [STEP 2] Flashing ESPHome...
-%PY_CMD% -m esphome run hardware/heartrate.yaml
-
-echo [STEP 3] Running Bridge Server...
-%PY_CMD% server/bridge.py
+echo [STEP 2] Running Bridge Server...
+!PY_CMD! server/bridge.py
 
 pause

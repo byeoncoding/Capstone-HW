@@ -9,20 +9,22 @@ echo HeartView Fall Sensor Setup (Windows)
 echo ==========================================
 
 if not exist config.env (
-    echo [ERROR] config_fall.env file not found!
+    echo [ERROR] config.env file not found!
     pause
     exit
 )
 
 for /f "tokens=1* delims==" %%a in (config.env) do (
-    if "%%a"=="WIFI_SSID" set WIFI_SSID=%%b
-    if "%%a"=="WIFI_PASSWORD" set WIFI_PASSWORD=%%b
+    set key=%%a
+    set val=%%b
+    if "!key!"=="WIFI_SSID" set WIFI_SSID=!val!
+    if "!key!"=="WIFI_PASSWORD" set WIFI_PASSWORD=!val!
 )
 
-set WIFI_SSID=%WIFI_SSID:"=%
-set WIFI_PASSWORD=%WIFI_PASSWORD:"=%
+if defined WIFI_SSID set WIFI_SSID=!WIFI_SSID:"=!
+if defined WIFI_PASSWORD set WIFI_PASSWORD=!WIFI_PASSWORD:"=!
 
-echo [INFO] WIFI_SSID: %WIFI_SSID%
+echo [INFO] WIFI_SSID: !WIFI_SSID!
 
 python --version >nul 2>&1
 if %errorlevel% equ 0 (
@@ -32,27 +34,12 @@ if %errorlevel% equ 0 (
 )
 
 echo [STEP 0] Installing requirements...
-%PY_CMD% -m pip install esphome aiohttp requests sseclient-py -q
+!PY_CMD! -m pip install esphome aiohttp requests sseclient-py -q
 
-echo [STEP 1] Updating hardware/fall.yaml...
-echo import os, re > update_fall_yaml.py
-echo s = os.environ.get('WIFI_SSID', '') >> update_fall_yaml.py
-echo p = os.environ.get('WIFI_PASSWORD', '') >> update_fall_yaml.py
-echo f = 'hardware/fall.yaml' >> update_fall_yaml.py
-echo c = open(f, 'r', encoding='utf-8').read() >> update_fall_yaml.py
-echo q = chr(34) >> update_fall_yaml.py
-echo c = re.sub(r'ssid: ' + q + '.*' + q, f'ssid: {q}{s}{q}', c) >> update_fall_yaml.py
-echo c = re.sub(r'password: ' + q + '.*' + q, f'password: {q}{p}{q}', c) >> update_fall_yaml.py
-echo open(f, 'w', encoding='utf-8').write(c) >> update_fall_yaml.py
+echo [STEP 1] Flashing ESPHome...
+!PY_CMD! -m esphome -s WIFI_SSID "!WIFI_SSID!" -s WIFI_PASSWORD "!WIFI_PASSWORD!" run hardware/fall.yaml
 
-%PY_CMD% update_fall_yaml.py
-del update_fall_yaml.py
-echo [OK] YAML update complete!
-
-echo [STEP 2] Flashing ESPHome...
-%PY_CMD% -m esphome run hardware/fall.yaml
-
-echo [STEP 3] Running Bridge Server...
-%PY_CMD% server/bridge_fall.py
+echo [STEP 2] Running Bridge Server...
+!PY_CMD! server/bridge_fall.py
 
 pause

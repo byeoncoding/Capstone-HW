@@ -1,5 +1,5 @@
 esphome:
-  name: HeartView-fall
+  name: "heartview-fall"
 
 esp32:
   board: seeed_xiao_esp32c6
@@ -13,10 +13,11 @@ web_server:
   port: 80
 
 wifi:
-  ssid: "iptime"
-  password: ""
+  ssid: "${WIFI_SSID}"
+  password: "${WIFI_PASSWORD}"
   ap:
-    ssid: "iptime"
+    ssid: "${WIFI_SSID}"
+    password: "${WIFI_PASSWORD}"
 
 captive_portal:
 

@@ -1,5 +1,5 @@
 esphome:
-  name: capstone
+  name: heartview-hr
 
 esp32:
   board: seeed_xiao_esp32c6
@@ -16,22 +16,18 @@ logger:
 web_server:
   port: 80
 
-# API 키 (실제 키는 공유하지 않음)
 api:
   encryption:
-    key: "o"
+    key: "${API_KEY}"
 ota:
   - platform: esphome
 
-# 와이파이 설정 
 wifi:
   ssid: "iptime"
   password: "b5320827"
-
-  # 연결 실패 시 비상용으로 생성되는 핫스팟
   ap:
     ssid: "iptime"
-    password: ""
+    password: "b5320827"
 
 captive_portal:
 
