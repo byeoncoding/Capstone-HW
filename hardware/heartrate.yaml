@@ -1,38 +1,35 @@
 esphome:
-  name: capstone
+  name: heartview-hr
 
 esp32:
   board: seeed_xiao_esp32c6
   framework:
     type: esp-idf
 
-# 로그 출력 활성화
 logger:
   level: DEBUG
   logs:
-    seeed_mr60bha2: NONE  # [V] 로그 차단
-    uart.idf: INFO       # 시스템 로그 축소
-# 웹 서버 활성화 
+    seeed_mr60bha2: NONE
+    uart.idf: INFO
+
 web_server:
   port: 80
 
-# API 키 (실제 키는 공유하지 않음)
 api:
   encryption:
-    key: "omeckzUWHKyEFdbxso06aobaqWehfqqfbUPX+Y/UJmY="
+    key: "${API_KEY}"
 
 ota:
   - platform: esphome
 
-# 와이파이 설정 
 wifi:
   ssid: "Josnow"
   password: "fuckjohnsnow"
-
-  # 연결 실패 시 비상용으로 생성되는 핫스팟
+  fast_connect: true
+  output_power: 8.5
   ap:
-    ssid: "Josnow"
-    password: "fuckjohnsnow"
+    ssid: "HeartView-Fallback"
+    password: "heartview1234"
 
 captive_portal:
 
@@ -54,5 +51,15 @@ sensor:
   - platform: seeed_mr60bha2
     heart_rate:
       name: "Current Heart Rate"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 5
+        - filter_out: 0
     breath_rate:
       name: "Current Breath Rate"
+      filters:
+        - sliding_window_moving_average:
+            window_size: 10
+            send_every: 5
+        - filter_out: 0
