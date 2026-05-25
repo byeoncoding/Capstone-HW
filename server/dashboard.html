@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=800, initial-scale=1.0">
+<title>HeartView</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; cursor:none !important; }
+body { font-family:'Segoe UI','Noto Sans KR',sans-serif; background:#0b1208; color:#d8edca; width:100vw; height:100vh; overflow:hidden; display:flex; flex-direction:column; gap:8px; padding:8px; }
+.main-row { display:flex; gap:8px; flex:1; min-height:0; }
+.left-col  { display:flex; flex-direction:column; gap:8px; flex:1; min-width:0; }
+.weather-card { background:linear-gradient(135deg,#111a08,#1a280c); border-radius:14px; padding:10px 14px; flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:space-around; border:1px solid #4a7a28; overflow:hidden; position:relative; }
+.weather-location { font-size:2.2vw; font-weight:700; color:#8EC96D; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:absolute; top:10px; left:14px; }
+.weather-main { display:flex; align-items:center; justify-content:center; gap:8px; }
+.weather-icon { font-size:7vw; line-height:1; }
+.weather-temp { font-size:9.5vw; font-weight:700; color:#f0fff0; letter-spacing:-1px; line-height:1; text-align:center; margin-left:2vw; }
+.weather-desc { font-size:3.5vw; font-weight:700; color:#b0d888; text-align:center; }
+.weather-detail { display:flex; gap:10px; font-size:2.2vw; color:#8EC96D; flex-wrap:wrap; justify-content:center; }
+.datetime-card { background:#111808; border-radius:14px; padding:10px 14px; flex:1; min-height:0; border:1px solid #3a5a1a; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; overflow:hidden; }
+.dt-date { font-size:3.8vw; font-weight:600; color:#c8e8a8; text-align:center; }
+.dt-time { font-size:5.5vw; font-weight:700; color:#8EC96D; text-align:center; letter-spacing:1px; white-space:nowrap; }
+.alert-btn { background:linear-gradient(160deg,#8b0000,#e74c3c,#8b0000); border:none; border-radius:16px; color:#fff; flex:0 0 50%; min-height:0; cursor:none !important; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; -webkit-tap-highlight-color:transparent; touch-action:manipulation; box-shadow:0 0 30px rgba(231,76,60,0.5); transition:filter 0.1s; overflow:hidden; padding:10px; }
+.alert-btn:active { filter:brightness(0.75); }
+.alert-btn.sent { background:linear-gradient(160deg,#0a4a20,#27ae60,#0a4a20); }
+.alert-icon  { font-size:12vw; line-height:1; }
+.alert-label { font-size:8vw; font-weight:900; line-height:1.25; text-align:center; }
+.alert-status { font-size:2.4vw; color:rgba(255,255,255,0.75); text-align:center; }
+/* 하단 바이탈 바 */
+.vitals-bar { display:flex; gap:8px; height:88px; flex-shrink:0; }
+.vital-card { background:#111808; border-radius:14px; flex:1; border:1px solid #3a5a1a; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; overflow:hidden; transition:border-color 0.3s; }
+.vital-label { font-size:13px; color:#6a9a48; font-weight:700; letter-spacing:0.5px; }
+.vital-row { display:flex; align-items:baseline; gap:5px; }
+.vital-value { font-size:36px; font-weight:800; color:#8EC96D; line-height:1; }
+.vital-unit  { font-size:14px; color:#8EC96D; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="main-row">
+  <div class="left-col">
+    <div class="weather-card">
+      <div class="weather-location" id="wLocation">📍 전주</div>
+      <div class="weather-main">
+        <div class="weather-icon" id="wIcon">⏳</div>
+        <div class="weather-desc" id="wDesc">불러오는 중</div>
+      </div>
+      <div class="weather-temp" id="wTemp">--°</div>
+      <div class="weather-detail">
+        <span id="wHumid">💧 --%</span>
+        <span id="wWind">💨 -- km/h</span>
+        <span id="wFeels">체감 --°</span>
+      </div>
+    </div>
+    <div class="datetime-card">
+      <div class="dt-date" id="dtDate"></div>
+      <div class="dt-time" id="dtTime"></div>
+    </div>
+  </div>
+  <button class="alert-btn" id="alertBtn" onclick="sendAlert()">
+    <div class="alert-icon">🚨</div>
+    <div class="alert-label" id="alertLabel">응급 알림<br>보내기</div>
+    <div class="alert-status" id="alertStatus">누르면 즉시 전송</div>
+  </button>
+</div>
+
+<div class="vitals-bar">
+  <div class="vital-card">
+    <div class="vital-label">❤️ 심박수</div>
+    <div class="vital-row">
+      <div class="vital-value" id="vHR">--</div>
+      <div class="vital-unit">BPM</div>
+    </div>
+  </div>
+  <div class="vital-card">
+    <div class="vital-label">🫁 호흡수</div>
+    <div class="vital-row">
+      <div class="vital-value" id="vBR">--</div>
+      <div class="vital-unit">회/분</div>
+    </div>
+  </div>
+  <div class="vital-card" id="vPresenceCard">
+    <div class="vital-label">🧑 재실여부</div>
+    <div class="vital-row">
+      <div class="vital-value" id="vPresence">--</div>
+    </div>
+    <div class="vital-unit" id="vFallLabel"></div>
+  </div>
+</div>
+
+<script>
+const WMO={0:['☀️','맑음'],1:['🌤️','대체로 맑음'],2:['⛅','구름 조금'],3:['☁️','흐림'],45:['🌫️','안개'],48:['🌫️','안개'],51:['🌦️','이슬비'],53:['🌦️','이슬비'],55:['🌧️','이슬비'],61:['🌧️','비'],63:['🌧️','비'],65:['🌧️','강한 비'],71:['🌨️','눈'],73:['🌨️','눈'],75:['❄️','강한 눈'],77:['🌨️','눈발'],80:['🌦️','소나기'],81:['🌦️','소나기'],82:['⛈️','강한 소나기'],95:['⛈️','뇌우'],96:['⛈️','뇌우'],99:['⛈️','뇌우']};
+function fetchWeather(){
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=35.8242&longitude=127.1480&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto')
+    .then(r=>r.json()).then(d=>{
+      const c=d.current,[icon,desc]=WMO[c.weather_code]||['🌡️','알 수 없음'];
+      document.getElementById('wIcon').textContent=icon;
+      document.getElementById('wTemp').textContent=Math.round(c.temperature_2m)+'°';
+      document.getElementById('wDesc').textContent=desc;
+      document.getElementById('wHumid').textContent='💧 '+c.relative_humidity_2m+'%';
+      document.getElementById('wWind').textContent='💨 '+Math.round(c.wind_speed_10m)+' km/h';
+      document.getElementById('wFeels').textContent='체감 '+Math.round(c.apparent_temperature)+'°';
+    }).catch(()=>{document.getElementById('wDesc').textContent='날씨 로드 실패';});
+}
+function updateDateTime(){
+  const now=new Date(),y=now.getFullYear(),mo=now.getMonth()+1,d=now.getDate();
+  const h=now.getHours(),mi=String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('dtDate').textContent=y+'년 '+mo+'월 '+d+'일';
+  document.getElementById('dtTime').textContent=(h<12?'오전':'오후')+' '+(h%12||12)+'시 '+mi+'분';
+}
+function pollVitals(){
+  fetch('/status').then(r=>r.json()).then(d=>{
+    document.getElementById('vHR').textContent = d.hr !== null ? d.hr : '--';
+    document.getElementById('vBR').textContent = d.br !== null ? d.br : '--';
+    const pEl   = document.getElementById('vPresence');
+    const fEl   = document.getElementById('vFallLabel');
+    const card  = document.getElementById('vPresenceCard');
+    if(d.fall){
+      pEl.textContent='낙상!'; pEl.style.color='#e74c3c';
+      fEl.textContent='⚠️ 낙상감지'; card.style.borderColor='#e74c3c';
+    } else {
+      const present = d.present !== false;
+      pEl.textContent = present ? '재실' : '부재';
+      pEl.style.color = present ? '#8EC96D' : '#e74c3c';
+      fEl.textContent = ''; card.style.borderColor = present ? '#3a5a1a' : '#8b0000';
+    }
+  }).catch(()=>{});
+}
+function sendAlert(){
+  const btn=document.getElementById('alertBtn'),status=document.getElementById('alertStatus'),label=document.getElementById('alertLabel');
+  btn.disabled=true;status.textContent='전송 중...';
+  fetch('/manual-alert',{method:'POST'}).then(r=>r.json()).then(()=>{
+    btn.classList.add('sent');label.innerHTML='전송<br>완료';status.textContent='보호자에게 알림이 전송되었습니다';
+    setTimeout(()=>{btn.classList.remove('sent');label.innerHTML='응급 알림<br>보내기';status.textContent='누르면 즉시 전송';btn.disabled=false;},4000);
+  }).catch(()=>{status.textContent='전송 실패';btn.disabled=false;});
+}
+fetchWeather(); setInterval(fetchWeather,600000);
+updateDateTime(); setInterval(updateDateTime,1000);
+pollVitals(); setInterval(pollVitals,3000);
+</script>
+</body>
+</html>
