@@ -32,8 +32,10 @@ RECV_PORT       = int(env_vars.get('RECV_PORT', 8888))
 FALL_SERIAL_NUM = 'FALL-01'
 
 # ── 필터 설정 (노이즈 제거용만) ────────────────────────────────
-MAX_HR_SPIKE  = 25   # bpm — spike over this threshold is rejected
+MAX_HR_SPIKE  = 25   # bpm — single-frame spike rejection threshold
+MAX_HR_SLEW   = 12   # bpm — max change per reading (slew rate limiter)
 MAX_BR_SPIKE  = 8    # breaths/min
+MIN_BR        = 8    # physiological minimum (below = sensor noise)
 FALL_COOLDOWN = 180  # fall alert cooldown (seconds)
 WARMUP        = 10   # ignore first N readings (sensor stabilization)
 
@@ -51,10 +53,19 @@ lock = threading.Lock()
 
 # ── 필터 함수 ──────────────────────────────────────────────────
 def spike_reject(new_val, last_val, max_spike):
-    """갑작스런 스파이크 제거 — 튀면 이전 값 유지"""
+    """단발 스파이크 제거 — 튀면 이전 값 유지"""
     if last_val is None:
         return new_val
     return last_val if abs(new_val - last_val) > max_spike else new_val
+
+def slew_limit(new_val, last_val, max_delta):
+    """슬루레이트 리미터 — 급격한 변화를 서서히 따라감"""
+    if last_val is None:
+        return new_val
+    diff = new_val - last_val
+    if abs(diff) > max_delta:
+        return last_val + max_delta * (1 if diff > 0 else -1)
+    return new_val
 
 
 # ── 알림 전송 (낙상/수동만) ────────────────────────────────────
@@ -116,10 +127,11 @@ def receive_data():
         hr_raw_f = float(raw_hr)
         br_raw_f = float(raw_br)
         hr_rejected = last_hr is not None and abs(hr_raw_f - last_hr) > MAX_HR_SPIKE
-        br_rejected = last_br is not None and abs(br_raw_f - last_br) > MAX_BR_SPIKE
+        br_rejected = last_br is not None and (abs(br_raw_f - last_br) > MAX_BR_SPIKE or br_raw_f < MIN_BR)
 
-        hr_final = round(spike_reject(hr_raw_f, last_hr, MAX_HR_SPIKE))
-        br_final = max(1, round(spike_reject(br_raw_f, last_br, MAX_BR_SPIKE)))
+        hr_spiked = spike_reject(hr_raw_f, last_hr, MAX_HR_SPIKE)
+        hr_final  = round(slew_limit(hr_spiked, last_hr, MAX_HR_SLEW))
+        br_final  = max(MIN_BR, round(spike_reject(br_raw_f, last_br, MAX_BR_SPIKE)))
 
         # 3) 상태 업데이트
         last_hr      = hr_final
